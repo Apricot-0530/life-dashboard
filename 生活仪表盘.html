@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Dashboard · 个人生活仪表盘</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+<style>
+/* ===== Reset & Base ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-light: #e8f0fe;
+  --success: #34c759;
+  --warning: #ff9500;
+  --danger: #ff3b30;
+  --border: rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bg-texture: none;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  background-color: var(--bg);
+  background-image: var(--bg-texture);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background-color 0.5s var(--ease);
+}
+
+/* ===== Theme Backgrounds ===== */
+/* 波点 · 米白 */
+body.theme-dots {
+  --bg: #faf8f5;
+  --bg-texture: radial-gradient(circle, rgba(0,0,0,0.05) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+/* 格纹 · 雾霾蓝 */
+body.theme-plaid {
+  --bg: #eef2f7;
+  --bg-texture:
+    linear-gradient(rgba(0,113,227,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,113,227,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+/* 蕾丝 · 豆沙粉 */
+body.theme-lace {
+  --bg: #f7f0f2;
+  --bg-texture: radial-gradient(circle at 25% 25%, rgba(255,105,135,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,105,135,0.06) 0%, transparent 50%);
+  background-size: 40px 40px;
+}
+/* 薄荷 · 小波点 */
+body.theme-mint {
+  --bg: #f0f7f4;
+  --bg-texture: radial-gradient(circle, rgba(52,199,89,0.06) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+/* 自定义图片背景 */
+body.theme-custom {
+  --bg: #e8e8ed;
+  --bg-texture: none;
+}
+body.theme-custom::before {
+  content: ''; position: fixed; inset: 0; z-index: -1;
+  background-size: cover; background-position: center;
+  opacity: 0.3;
+  transition: opacity 0.5s var(--ease);
+}
+
+/* ===== Layout ===== */
+.app { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* ===== Top Nav ===== */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  margin: -24px -24px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  animation: slideDown 0.5s var(--ease);
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.nav-brand { font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
+.nav-tabs {
+  display: flex; gap: 2px;
+  background: rgba(118,118,128,0.1);
+  padding: 4px; border-radius: 10px;
+}
+.nav-tab {
+  padding: 7px 18px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer;
+  transition: all 0.25s var(--ease);
+  border: none; background: transparent;
+}
+.nav-tab.active {
+  background: white; color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+.nav-tab:hover:not(.active) { color: var(--text-primary); }
+.nav-tab:active { transform: scale(0.96); }
+
+/* ===== Theme Button ===== */
+.theme-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: rgba(118,118,128,0.1);
+  color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s var(--ease);
+}
+.theme-btn:hover {
+  background: rgba(118,118,128,0.18);
+  color: var(--text-primary);
+  transform: rotate(30deg);
+}
+.theme-btn:active { transform: scale(0.9); }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  transition: all 0.3s var(--ease);
+  animation: fadeInUp 0.4s var(--ease) backwards;
+}
+.card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-title {
+  font-size: 13px; font-weight: 600; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+}
+
+/* ===== Grid ===== */
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ===== Views ===== */
+.view { display: none; }
+.view.active {
+  display: block;
+  animation: viewIn 0.35s var(--ease);
+}
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Stats ===== */
+.stat-card { position: relative; overflow: hidden; }
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), #5ac8fa);
+  opacity: 0; transition: opacity 0.3s;
+}
+.stat-card:hover::before { opacity: 1; }
+.stat-value {
+  font-size: 32px; font-weight: 700; letter-spacing: -1.2px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.stat-change { font-size: 12px; margin-top: 8px; font-weight: 500; }
+.stat-change.up { color: var(--danger); }
+.stat-change.down { color: var(--success); }
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 10px 20px; border-radius: 980px; font-size: 14px; font-weight: 500;
+  border: none; cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-family: inherit;
+}
+.btn-primary {
+  background: var(--accent); color: white;
+  box-shadow: 0 1px 4px rgba(0,113,227,0.2);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0,113,227,0.3);
+}
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 2px rgba(0,113,227,0.2);
+}
+.btn-ghost {
+  background: rgba(118,118,128,0.1); color: var(--text-primary);
+}
+.btn-ghost:hover { background: rgba(118,118,128,0.18); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+
+/* ===== Lists ===== */
+.list-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 8px; border-radius: 8px;
+  transition: all 0.15s;
+  animation: slideIn 0.3s var(--ease);
+}
+.list-item + .list-item { border-top: 1px solid var(--border); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.list-item:hover { background: rgba(0,0,0,0.02); }
+.list-item-main { display: flex; align-items: center; gap: 12px; }
+.list-item-title { font-size: 15px; font-weight: 500; }
+.list-item-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.list-item-amount { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.list-item-amount.income { color: var(--success); }
+.list-item-amount.expense { color: var(--text-primary); }
+
+/* ===== Form ===== */
+.input, select.input {
+  width: 100%; padding: 12px 16px; border: 1.5px solid transparent;
+  border-radius: var(--radius-sm); font-size: 15px; background: var(--bg);
+  transition: all 0.2s var(--ease); outline: none; font-family: inherit;
+  -webkit-appearance: none;
+}
+.input:focus {
+  border-color: var(--accent); background: white;
+  box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+}
+.input::placeholder { color: #aeaeb2; }
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+
+/* ===== Todo ===== */
+.todo-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 8px; border-radius: 10px;
+  transition: all 0.2s;
+  animation: slideIn 0.3s var(--ease);
+}
+.todo-item + .todo-item { border-top: 1px solid var(--border); }
+.todo-item:hover { background: rgba(0,0,0,0.02); }
+.todo-checkbox {
+  width: 24px; height: 24px; border: 2px solid #d2d2d7; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s var(--ease-spring); flex-shrink: 0;
+}
+.todo-checkbox:hover {
+  border-color: var(--success);
+  transform: scale(1.1);
+}
+.todo-checkbox.checked {
+  background: var(--success); border-color: var(--success);
+}
+.todo-checkbox.checked::after {
+  content: '✓'; color: white; font-size: 14px; font-weight: bold;
+  animation: checkPop 0.3s var(--ease-spring);
+}
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.todo-text { flex: 1; font-size: 15px; transition: all 0.2s; }
+.todo-item.done .todo-text {
+  text-decoration: line-through; color: var(--text-secondary);
+}
+.todo-date { font-size: 12px; color: var(--text-secondary); }
+
+/* ===== Map ===== */
+.map-container {
+  width: 100%; height: 320px;
+  background: linear-gradient(135deg, #e8f4fd 0%, #d4e9fc 50%, #c5e0fa 100%);
+  border-radius: var(--radius-sm);
+  position: relative; overflow: hidden;
+  transition: all 0.3s;
+}
+.map-container:hover { box-shadow: inset 0 0 0 1px rgba(0,113,227,0.1); }
+.map-pin {
+  position: absolute; width: 14px; height: 14px; background: var(--accent);
+  border-radius: 50%; transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 5px rgba(0,113,227,0.15);
+  animation: pinDrop 0.5s var(--ease-spring);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.map-pin:hover { transform: translate(-50%, -50%) scale(1.3); z-index: 10; }
+@keyframes pinDrop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.map-pin::after {
+  content: attr(data-label); position: absolute; bottom: 18px; left: 50%;
+  transform: translateX(-50%); font-size: 12px; font-weight: 600;
+  background: white; padding: 5px 10px; border-radius: 8px; white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  opacity: 0; transition: opacity 0.2s;
+}
+.map-pin:hover::after { opacity: 1; }
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center; color: var(--text-secondary);
+  padding: 48px 20px; font-size: 14px;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed; bottom: 40px; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(28,28,30,0.9); color: white;
+  padding: 12px 24px; border-radius: 980px;
+  font-size: 14px; font-weight: 500;
+  transition: all 0.35s var(--ease-spring);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  opacity: 0;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .nav {
+    flex-direction: column; gap: 12px;
+    padding: 12px 16px;
+  }
+  .stat-value { font-size: 26px; }
+  .app { padding: 16px; }
+  .nav { margin: -16px -16px 16px; }
+}
+
+/* ===== Selection ===== */
+::selection { background: rgba(0,113,227,0.2); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Top Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">Life Dashboard</div>
+    <div style="display:flex; align-items:center; gap:16px">
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-view="overview">概览</button>
+        <button class="nav-tab" data-view="finance">记账</button>
+        <button class="nav-tab" data-view="schedule">日程</button>
+        <button class="nav-tab" data-view="travel">旅行</button>
+      </div>
+      <button class="theme-btn" onclick="cycleTheme()" title="切换背景主题">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== View: Overview ===== -->
+  <div id="view-overview" class="view active">
+    <div class="grid grid-3">
+      <div class="card stat-card" style="animation-delay: 0.05s">
+        <div class="card-title">本月支出</div>
+        <div class="stat-value" id="ov-spent">¥0</div>
+        <div class="stat-change down" id="ov-spent-change">较上月 -</div>
+      </div>
+      <div class="card stat-card" style="animation-delay: 0.1s">
+        <div class="card-title">今日待办</div>
+        <div class="stat-value" id="ov-todos">0</div>
+        <div class="stat-label">项未完成</div>
+      </div>
+      <div class="card stat-card" style="animation-delay: 0.15s">
+        <div class="card-title">已去城市</div>
+        <div class="stat-value" id="ov-cities">0</div>
+        <div class="stat-label">个城市打卡</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card" style="animation-delay: 0.2s">
+        <div class="card-title">最近支出</div>
+        <div id="ov-recent-expenses"></div>
+      </div>
+      <div class="card" style="animation-delay: 0.25s">
+        <div class="card-title">今日待办</div>
+        <div id="ov-todo-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== View: Finance ===== -->
+  <div id="view-finance" class="view">
+    <div class="card">
+      <div class="card-title">记一笔</div>
+      <div class="grid grid-4" style="margin-bottom:16px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">类型</label>
+          <select class="input" id="fin-type">
+            <option value="expense">支出</option>
+            <option value="income">收入</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">金额 (¥)</label>
+          <input type="number" class="input" id="fin-amount" placeholder="0.00" step="0.01">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">分类</label>
+          <select class="input" id="fin-category">
+            <option>餐饮</option>
+            <option>交通</option>
+            <option>购物</option>
+            <option>住房</option>
+            <option>娱乐</option>
+            <option>医疗</option>
+            <option>工资</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0; display:flex; align-items:flex-end">
+          <button class="btn btn-primary" style="width:100%" onclick="addExpense()">添加</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">备注（可选）</label>
+        <input type="text" class="input" id="fin-note" placeholder="买了杯咖啡...">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">收支记录</div>
+      <div id="fin-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== View: Schedule ===== -->
+  <div id="view-schedule" class="view">
+    <div class="card">
+      <div class="card-title">添加待办</div>
+      <div style="display:flex; gap:12px">
+        <input type="text" class="input" id="todo-input" placeholder="今天要做什么？按回车快速添加" style="flex:1"
+               onkeypress="if(event.key==='Enter')addTodo()">
+        <button class="btn btn-primary" onclick="addTodo()">添加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">待办列表</div>
+      <div id="todo-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== View: Travel ===== -->
+  <div id="view-travel" class="view">
+    <div class="card">
+      <div class="card-title">添加旅行足迹</div>
+      <div class="grid grid-3" style="margin-bottom:16px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">城市名称</label>
+          <input type="text" class="input" id="travel-city" placeholder="东京">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">到访日期</label>
+          <input type="date" class="input" id="travel-date">
+        </div>
+        <div class="form-group" style="margin:0; display:flex; align-items:flex-end">
+          <button class="btn btn-primary" style="width:100%" onclick="addTravel()">打卡</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">备注（可选）</label>
+        <input type="text" class="input" id="travel-note" placeholder="樱花季去的，太美了...">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">足迹地图</div>
+      <div class="map-container" id="map-container">
+        <div class="empty-state">添加城市后，这里会显示你的足迹地图</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">去过的城市</div>
+      <div id="travel-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="bg-image-input" accept="image/*" style="display:none">
+
+<script>
+// ===== State =====
+const STORAGE_KEY = 'life_dashboard_data';
+let state = { expenses: [], todos: [], travels: [] };
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) state = JSON.parse(saved);
+  } catch(e) { console.warn('Load failed:', e); }
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+// ===== Toast =====
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ===== Number Count-up Animation =====
+function animateNumber(el, target, prefix = '', suffix = '') {
+  const start = parseFloat(el.dataset.val || 0);
+  const duration = 600;
+  const startTime = performance.now();
+  function update(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+    const current = start + (target - start) * eased;
+    el.textContent = prefix + current.toFixed(0) + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+    else el.dataset.val = target;
+  }
+  requestAnimationFrame(update);
+}
+
+// ===== Navigation =====
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.view).classList.add('active');
+  });
+});
+
+// ===== Finance =====
+function addExpense() {
+  const type = document.getElementById('fin-type').value;
+  const amount = parseFloat(document.getElementById('fin-amount').value);
+  const category = document.getElementById('fin-category').value;
+  const note = document.getElementById('fin-note').value;
+  if (!amount || amount <= 0) { showToast('请输入有效金额'); return; }
+  state.expenses.unshift({ type, amount, category, note, date: new Date().toISOString() });
+  saveState();
+  renderFinance();
+  renderOverview();
+  document.getElementById('fin-amount').value = '';
+  document.getElementById('fin-note').value = '';
+  showToast(type === 'expense' ? '支出已记录' : '收入已记录');
+}
+
+function renderFinance() {
+  const list = document.getElementById('fin-list');
+  if (state.expenses.length === 0) {
+    list.innerHTML = '<div class="empty-state">还没有记录，开始记第一笔吧</div>';
+    return;
+  }
+  list.innerHTML = state.expenses.slice(0, 30).map((e, i) => `
+    <div class="list-item" style="animation-delay:${i * 0.03}s">
+      <div class="list-item-main">
+        <div>
+          <div class="list-item-title">${e.category}</div>
+          <div class="list-item-sub">${e.note || ''} · ${new Date(e.date).toLocaleDateString('zh-CN')}</div>
+        </div>
+      </div>
+      <div class="list-item-amount ${e.type}">${e.type === 'income' ? '+' : '-'}¥${e.amount.toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+// ===== Todos =====
+function addTodo() {
+  const input = document.getElementById('todo-input');
+  const text = input.value.trim();
+  if (!text) { showToast('请输入待办内容'); return; }
+  state.todos.push({ text, done: false, date: new Date().toISOString() });
+  saveState();
+  renderTodos();
+  renderOverview();
+  input.value = '';
+  showToast('待办已添加');
+}
+
+function toggleTodo(idx) {
+  state.todos[idx].done = !state.todos[idx].done;
+  saveState();
+  renderTodos();
+  renderOverview();
+}
+
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  if (state.todos.length === 0) {
+    list.innerHTML = '<div class="empty-state">暂无待办，添加一个吧</div>';
+    return;
+  }
+  list.innerHTML = state.todos.map((t, i) => `
+    <div class="todo-item ${t.done ? 'done' : ''}">
+      <div class="todo-checkbox ${t.done ? 'checked' : ''}" onclick="toggleTodo(${i})"></div>
+      <div class="todo-text">${t.text}</div>
+      <div class="todo-date">${new Date(t.date).toLocaleDateString('zh-CN')}</div>
+    </div>
+  `).join('');
+}
+
+// ===== Travel =====
+function addTravel() {
+  const city = document.getElementById('travel-city').value.trim();
+  const date = document.getElementById('travel-date').value;
+  const note = document.getElementById('travel-note').value;
+  if (!city) { showToast('请输入城市名称'); return; }
+  state.travels.push({ city, date, note });
+  saveState();
+  renderTravel();
+  renderOverview();
+  document.getElementById('travel-city').value = '';
+  document.getElementById('travel-note').value = '';
+  showToast(`已打卡 ${city}`);
+}
+
+function renderTravel() {
+  const list = document.getElementById('travel-list');
+  const map = document.getElementById('map-container');
+
+  if (state.travels.length === 0) {
+    list.innerHTML = '<div class="empty-state">还没有旅行记录，去打卡第一个城市吧</div>';
+    map.innerHTML = '<div class="empty-state">添加城市后，这里会显示你的足迹地图</div>';
+    return;
+  }
+
+  list.innerHTML = state.travels.map((t, i) => `
+    <div class="list-item" style="animation-delay:${i * 0.05}s">
+      <div class="list-item-main">
+        <div>
+          <div class="list-item-title">${t.city}</div>
+          <div class="list-item-sub">${t.note || ''} · ${t.date || '日期未填'}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Pseudo-map pins with spring animation
+  map.innerHTML = state.travels.map((t, i) => {
+    const x = 15 + (i * 23) % 70;
+    const y = 20 + (i * 31) % 60;
+    return `<div class="map-pin" style="left:${x}%; top:${y}%; animation-delay:${i * 0.1}s" data-label="${t.city}"></div>`;
+  }).join('');
+}
+
+// ===== Overview =====
+function renderOverview() {
+  const now = new Date();
+  const monthExpenses = state.expenses.filter(e => {
+    const d = new Date(e.date);
+    return e.type === 'expense' && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const total = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  animateNumber(document.getElementById('ov-spent'), total, '¥');
+
+  const pendingTodos = state.todos.filter(t => !t.done);
+  animateNumber(document.getElementById('ov-todos'), pendingTodos.length);
+
+  animateNumber(document.getElementById('ov-cities'), state.travels.length);
+
+  // Recent expenses
+  const recent = state.expenses.slice(0, 5);
+  document.getElementById('ov-recent-expenses').innerHTML = recent.length === 0
+    ? '<div class="empty-state">暂无记录</div>'
+    : recent.map((e, i) => `
+      <div class="list-item" style="animation-delay:${i * 0.05}s">
+        <div class="list-item-main">
+          <div class="list-item-title">${e.category}</div>
+        </div>
+        <div class="list-item-amount ${e.type}">${e.type === 'income' ? '+' : '-'}¥${e.amount.toFixed(0)}</div>
+      </div>
+    `).join('');
+
+  // Todo preview
+  document.getElementById('ov-todo-list').innerHTML = pendingTodos.slice(0, 5).map((t, i) => {
+    const realIdx = state.todos.indexOf(t);
+    return `
+      <div class="todo-item">
+        <div class="todo-checkbox" onclick="toggleTodo(${realIdx}); renderOverview();"></div>
+        <div class="todo-text">${t.text}</div>
+      </div>
+    `;
+  }).join('') || '<div class="empty-state">今日待办已清空</div>';
+}
+
+// ===== Theme Switcher =====
+const THEMES = [
+  { name: '默认', cls: '' },
+  { name: '米白波点', cls: 'theme-dots' },
+  { name: '雾霾蓝格纹', cls: 'theme-plaid' },
+  { name: '豆沙粉蕾丝', cls: 'theme-lace' },
+  { name: '薄荷小波点', cls: 'theme-mint' },
+  { name: '自定义图片', cls: 'theme-custom' },
+];
+let currentThemeIdx = 0;
+
+function loadTheme() {
+  const saved = localStorage.getItem('life_dashboard_theme');
+  if (saved !== null) {
+    currentThemeIdx = parseInt(saved);
+    applyTheme(currentThemeIdx);
+  }
+  // 加载已保存的自定义背景图
+  const savedBg = localStorage.getItem('life_dashboard_custom_bg');
+  if (savedBg) {
+    document.body.style.setProperty('--custom-bg-url', `url(${savedBg})`);
+    updateCustomBgImage();
+  }
+}
+
+function updateCustomBgImage() {
+  const savedBg = localStorage.getItem('life_dashboard_custom_bg');
+  if (savedBg) {
+    document.body.style.setProperty('--custom-bg-url', `url(${savedBg})`);
+    // 直接设置 ::before 的背景图
+    const style = document.createElement('style');
+    style.textContent = `body.theme-custom::before { background-image: url(${savedBg}); }`;
+    style.id = 'custom-bg-style';
+    document.getElementById('custom-bg-style')?.remove();
+    document.head.appendChild(style);
+  }
+}
+
+function applyTheme(idx) {
+  document.body.classList.remove(...THEMES.map(t => t.cls).filter(Boolean));
+  if (THEMES[idx].cls) document.body.classList.add(THEMES[idx].cls);
+}
+
+function cycleTheme() {
+  currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
+
+  // 如果切换到自定义图片主题，检查有没有已设置的图
+  if (THEMES[currentThemeIdx].cls === 'theme-custom') {
+    const hasBg = localStorage.getItem('life_dashboard_custom_bg');
+    if (!hasBg) {
+      // 没有图，触发文件选择
+      showToast('请选择一张图片作为背景');
+      setTimeout(() => {
+        document.getElementById('bg-image-input').click();
+      }, 600);
+    } else {
+      updateCustomBgImage();
+    }
+  }
+
+  applyTheme(currentThemeIdx);
+  localStorage.setItem('life_dashboard_theme', currentThemeIdx);
+  showToast('背景：' + THEMES[currentThemeIdx].name);
+}
+
+// 处理图片选择
+document.getElementById('bg-image-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) {
+    showToast('图片太大啦，选个 3MB 以内的哦');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    localStorage.setItem('life_dashboard_custom_bg', ev.target.result);
+    updateCustomBgImage();
+    showToast('自定义背景已设置');
+  };
+  reader.readAsDataURL(file);
+});
+
+// ===== Init =====
+loadState();
+loadTheme();
+renderFinance();
+renderTodos();
+renderTravel();
+renderOverview();
+</script>
+
+</body>
+</html>
