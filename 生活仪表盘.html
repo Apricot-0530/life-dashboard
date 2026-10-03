@@ -14,9 +14,9 @@
   --card: #ffffff;
   --text-primary: #1d1d1f;
   --text-secondary: #86868b;
-  --accent: #0071e3;
-  --accent-hover: #0077ed;
-  --accent-light: #e8f0fe;
+  --accent: #87b8e8;
+  --accent-hover: #7aaee3;
+  --accent-light: #e8f2fb;
   --success: #34c759;
   --warning: #ff9500;
   --danger: #ff3b30;
@@ -294,42 +294,143 @@ body.theme-custom::before {
 }
 .todo-date { font-size: 12px; color: var(--text-secondary); }
 
-/* ===== Map ===== */
+/* ===== Map (ECharts) ===== */
 .map-container {
-  width: 100%; height: 320px;
-  background: linear-gradient(135deg, #e8f4fd 0%, #d4e9fc 50%, #c5e0fa 100%);
+  width: 100%; height: 380px;
   border-radius: var(--radius-sm);
-  position: relative; overflow: hidden;
+  overflow: hidden;
   transition: all 0.3s;
 }
-.map-container:hover { box-shadow: inset 0 0 0 1px rgba(0,113,227,0.1); }
-.map-pin {
-  position: absolute; width: 14px; height: 14px; background: var(--accent);
-  border-radius: 50%; transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 5px rgba(0,113,227,0.15);
-  animation: pinDrop 0.5s var(--ease-spring);
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.map-pin:hover { transform: translate(-50%, -50%) scale(1.3); z-index: 10; }
-@keyframes pinDrop {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-.map-pin::after {
-  content: attr(data-label); position: absolute; bottom: 18px; left: 50%;
-  transform: translateX(-50%); font-size: 12px; font-weight: 600;
-  background: white; padding: 5px 10px; border-radius: 8px; white-space: nowrap;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  opacity: 0; transition: opacity 0.2s;
-}
-.map-pin:hover::after { opacity: 1; }
+.map-container:hover { box-shadow: inset 0 0 0 1px rgba(135,184,232,0.2); }
 
 /* ===== Empty State ===== */
 .empty-state {
   text-align: center; color: var(--text-secondary);
   padding: 48px 20px; font-size: 14px;
 }
+
+/* ===== Delete Button (Circle + X) ===== */
+.delete-btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid #d2d2d7;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 12px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s var(--ease);
+  flex-shrink: 0;
+  padding: 0;
+}
+.delete-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+  transform: scale(1.1);
+}
+.delete-btn:active { transform: scale(0.9); }
+
+/* ===== Travel Card Expandable ===== */
+.travel-card {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: all 0.25s var(--ease);
+}
+.travel-card + .travel-card { margin-top: 8px; }
+.travel-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; cursor: pointer;
+  transition: background 0.15s;
+}
+.travel-card-header:hover { background: rgba(0,0,0,0.02); }
+.travel-card-title { font-size: 15px; font-weight: 600; }
+.travel-card-date { font-size: 13px; color: var(--text-secondary); }
+.travel-card-toggle {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(118,118,128,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--text-secondary);
+  transition: transform 0.3s var(--ease);
+}
+.travel-card.open .travel-card-toggle { transform: rotate(180deg); }
+.travel-card-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s var(--ease);
+}
+.travel-card.open .travel-card-body { max-height: 800px; }
+.travel-card-inner { padding: 0 16px 16px; }
+
+/* ===== Travel Notes ===== */
+.travel-note-section {
+  margin-bottom: 16px;
+}
+.travel-note-label {
+  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px;
+}
+.travel-note-content {
+  font-size: 14px; line-height: 1.6; color: var(--text-primary);
+  padding: 12px; background: var(--bg); border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+}
+.travel-note-empty {
+  font-size: 14px; color: var(--text-secondary); font-style: italic;
+  padding: 12px; background: var(--bg); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.2s;
+}
+.travel-note-empty:hover { background: rgba(0,113,227,0.05); color: var(--accent); }
+.travel-note-editor {
+  width: 100%; padding: 12px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; background: white;
+  resize: vertical; min-height: 80px; font-family: inherit;
+  outline: none; transition: all 0.2s;
+}
+.travel-note-editor:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
+
+/* ===== Travel Photos ===== */
+.travel-photos-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  margin-bottom: 12px;
+}
+.travel-photo {
+  aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+  cursor: pointer; transition: transform 0.2s var(--ease);
+  position: relative;
+}
+.travel-photo:hover { transform: scale(1.05); }
+.travel-photo img { width: 100%; height: 100%; object-fit: cover; }
+.travel-photo-add {
+  aspect-ratio: 1; border-radius: 10px;
+  background: rgba(118,118,128,0.08);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+  color: var(--text-secondary); font-size: 24px;
+}
+.travel-photo-add:hover { background: rgba(0,113,227,0.1); color: var(--accent); }
+
+/* ===== Photo Lightbox ===== */
+.lightbox {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s var(--ease);
+  backdrop-filter: blur(10px);
+}
+.lightbox.show { opacity: 1; pointer-events: auto; }
+.lightbox img {
+  max-width: 90vw; max-height: 90vh; border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.lightbox-close {
+  position: absolute; top: 24px; right: 24px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); color: white;
+  border: none; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.3); }
 
 /* ===== Toast ===== */
 .toast {
@@ -522,7 +623,15 @@ body.theme-custom::before {
 
 <div class="toast" id="toast"></div>
 <input type="file" id="bg-image-input" accept="image/*" style="display:none">
+<input type="file" id="travel-photo-input" accept="image/*" style="display:none">
 
+<!-- Photo Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close">×</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script>
 // ===== State =====
 const STORAGE_KEY = 'life_dashboard_data';
@@ -643,12 +752,67 @@ function renderTodos() {
 }
 
 // ===== Travel =====
+let expandedTravelIdx = -1;
+let editingNoteIdx = -1;
+let photoUploadTargetIdx = -1;
+let mapChart = null;
+let chinaMapLoaded = false;
+
+// 常见城市坐标
+const CITY_COORDS = {
+  '北京': [39.9042, 116.4074], '上海': [31.2304, 121.4737],
+  '广州': [23.1291, 113.2644], '深圳': [22.5431, 114.0579],
+  '杭州': [30.2741, 120.1551], '南京': [32.0603, 118.7969],
+  '成都': [30.5728, 104.0668], '重庆': [29.5630, 106.5516],
+  '武汉': [30.5928, 114.3055], '西安': [34.3416, 108.9398],
+  '苏州': [31.2989, 120.5853], '天津': [39.3434, 117.3616],
+  '长沙': [28.2282, 112.9388], '郑州': [34.7466, 113.6254],
+  '青岛': [36.0671, 120.3826], '大连': [38.9140, 121.6147],
+  '厦门': [24.4798, 118.0894], '昆明': [25.0389, 102.7183],
+  '三亚': [18.2528, 109.5119], '丽江': [26.8721, 100.2296],
+  '拉萨': [29.6520, 91.1721], '乌鲁木齐': [43.8256, 87.6168],
+  '哈尔滨': [45.8038, 126.5349], '沈阳': [41.8057, 123.4315],
+  '济南': [36.6512, 117.1201], '福州': [26.0745, 119.2965],
+  '合肥': [31.8206, 117.2272], '南昌': [28.6820, 115.8579],
+  '贵阳': [26.6470, 106.6302], '南宁': [22.8170, 108.3669],
+  '兰州': [36.0611, 103.8343], '太原': [37.8706, 112.5489],
+  '石家庄': [38.0428, 114.5149], '呼和浩特': [40.8426, 111.7492],
+  '银川': [38.4872, 106.2309], '西宁': [36.6171, 101.7782],
+  '海口': [20.0440, 110.1989], '珠海': [22.2710, 113.5767],
+  '东莞': [23.0207, 113.7518], '佛山': [23.0215, 113.1214],
+  '宁波': [29.8683, 121.5440], '无锡': [31.4912, 120.3119],
+  '东京': [35.6762, 139.6503], '首尔': [37.5665, 126.9780],
+  '曼谷': [13.7563, 100.5018], '新加坡': [1.3521, 103.8198],
+  '巴黎': [48.8566, 2.3522], '伦敦': [51.5074, -0.1278],
+  '纽约': [40.7128, -74.0060], '洛杉矶': [34.0522, -118.2437],
+  // 更多二线城市
+  '温州': [27.9938, 120.6994], '长春': [43.8171, 125.3235],
+  '泉州': [24.8741, 118.6757], '金华': [29.0791, 119.6474],
+  '常州': [31.8112, 119.9741], '烟台': [37.4638, 121.4479],
+  '惠州': [23.1116, 114.4152], '徐州': [34.2044, 117.2859],
+  '嘉兴': [30.7461, 120.7555], '南通': [31.9802, 120.8943],
+  '保定': [38.8740, 115.4646], '台州': [28.6564, 121.4208],
+  '中山': [22.5176, 113.3928], '绍兴': [30.0303, 120.5802],
+  '大理': [25.6065, 100.2676], '桂林': [25.2736, 110.2900],
+  '张家界': [29.1171, 110.4792], '黄山': [29.7147, 118.3376],
+  // 更多国外城市
+  '大阪': [34.6937, 135.5023], '京都': [35.0116, 135.7681],
+  '清迈': [18.7883, 98.9853], '吉隆坡': [3.1390, 101.6869],
+  '巴厘岛': [-8.4095, 115.1889], '迪拜': [25.2048, 55.2708],
+  '罗马': [41.9028, 12.4964], '巴塞罗那': [41.3874, 2.1686],
+  '阿姆斯特丹': [52.3676, 4.9041], '柏林': [52.5200, 13.4050],
+  '旧金山': [37.7749, -122.4194], '西雅图': [47.6062, -122.3321],
+  '温哥华': [49.2827, -123.1207], '多伦多': [43.6532, -79.3832],
+  '悉尼': [-33.8688, 151.2093], '墨尔本': [-37.8136, 144.9631],
+  '奥克兰': [-36.8485, 174.7633],
+}
+
 function addTravel() {
   const city = document.getElementById('travel-city').value.trim();
   const date = document.getElementById('travel-date').value;
   const note = document.getElementById('travel-note').value;
   if (!city) { showToast('请输入城市名称'); return; }
-  state.travels.push({ city, date, note });
+  state.travels.push({ city, date, note, journal: '', photos: [] });
   saveState();
   renderTravel();
   renderOverview();
@@ -657,32 +821,235 @@ function addTravel() {
   showToast(`已打卡 ${city}`);
 }
 
+function toggleTravelCard(idx) {
+  expandedTravelIdx = expandedTravelIdx === idx ? -1 : idx;
+  renderTravel();
+}
+
+function deleteTravel(idx) {
+  const city = state.travels[idx].city;
+  state.travels.splice(idx, 1);
+  saveState();
+  renderTravel();
+  renderOverview();
+  showToast(`已删除 ${city}`);
+}
+
+
+// ===== ECharts Map =====
+function renderEChartsMap() {
+  const mapEl = document.getElementById('map-container');
+  if (typeof echarts === 'undefined') {
+    mapEl.innerHTML = '<div class="empty-state" style="padding:140px 20px">地图加载中...</div>';
+    return;
+  }
+
+  // 初始化或复用图表实例
+  if (mapChart) { mapChart.dispose(); }
+  mapChart = echarts.init(mapEl);
+
+  // 先显示加载动画
+  mapChart.showLoading('default', {
+    text: '地图加载中...',
+    color: '#87b8e8',
+    textColor: '#86868b',
+    maskColor: 'rgba(255,255,255,0.8)'
+  });
+
+  // 加载中国地图 GeoJSON（阿里云 DataV，国内访问快）
+  fetch('https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/world.json')
+    .then(res => res.json())
+    .then(geoJson => {
+      echarts.registerMap('world', geoJson);
+      mapChart.hideLoading();
+
+      // 准备城市数据
+      const cityData = [];
+      state.travels.forEach(t => {
+        const coords = CITY_COORDS[t.city] || CITY_COORDS[t.city + '市'];
+        if (coords) {
+          cityData.push({
+            name: t.city,
+            value: [coords[1], coords[0]] // [lng, lat]
+          });
+        }
+      });
+
+      const option = {
+        backgroundColor: 'transparent',
+        geo: {
+          map: 'world',
+          roam: true,
+          zoom: 1.0,
+          zoomControl: { show: true, position: 'bottomright' },
+          label: { show: false },
+          itemStyle: {
+            areaColor: 'rgba(255,255,255,0.6)',
+            borderColor: '#c5d8ec',
+            borderWidth: 1
+          },
+          emphasis: {
+            itemStyle: { areaColor: 'rgba(135,184,232,0.2)' },
+            label: { show: false }
+          }
+        },
+        series: [{
+          name: '足迹',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          data: cityData,
+          symbolSize: 10,
+          itemStyle: {
+            color: '#87b8e8',
+            borderColor: '#fff',
+            borderWidth: 2,
+            shadowBlur: 8,
+            shadowColor: 'rgba(135,184,232,0.5)'
+          },
+          label: {
+            show: true,
+            position: 'right',
+            formatter: '{b}',
+            fontSize: 12,
+            fontWeight: 600,
+            color: '#1d1d1f'
+          },
+          emphasis: {
+            scale: 1.5
+          }
+        }]
+      };
+
+      mapChart.setOption(option);
+    })
+    .catch(err => {
+      console.warn('Map load failed:', err);
+      mapChart.hideLoading();
+      mapEl.innerHTML = '<div class="empty-state" style="padding:140px 20px">地图暂不可用</div>';
+    });
+}
+
+function editTravelNote(idx) {
+  editingNoteIdx = idx;
+  renderTravel();
+  setTimeout(() => {
+    const editor = document.getElementById('travel-note-editor-' + idx);
+    if (editor) {
+      editor.focus();
+      editor.setSelectionRange(editor.value.length, editor.value.length);
+    }
+  }, 100);
+}
+
+function saveTravelNote(idx) {
+  const editor = document.getElementById('travel-note-editor-' + idx);
+  if (editor) {
+    state.travels[idx].journal = editor.value;
+    saveState();
+  }
+  editingNoteIdx = -1;
+  renderTravel();
+  showToast('手记已保存');
+}
+
+function uploadTravelPhoto(idx) {
+  photoUploadTargetIdx = idx;
+  document.getElementById('travel-photo-input').click();
+}
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('show');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+// 处理旅行照片上传
+document.getElementById('travel-photo-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file || photoUploadTargetIdx < 0) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('图片太大啦，选个 2MB 以内的哦');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    state.travels[photoUploadTargetIdx].photos.push(ev.target.result);
+    saveState();
+    renderTravel();
+    showToast('照片已添加');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
 function renderTravel() {
   const list = document.getElementById('travel-list');
   const map = document.getElementById('map-container');
 
+  // 初始化或更新地图
   if (state.travels.length === 0) {
     list.innerHTML = '<div class="empty-state">还没有旅行记录，去打卡第一个城市吧</div>';
-    map.innerHTML = '<div class="empty-state">添加城市后，这里会显示你的足迹地图</div>';
+    map.innerHTML = '<div class="empty-state" style="padding:140px 20px">添加城市后，这里会显示你的足迹地图</div>';
     return;
   }
 
-  list.innerHTML = state.travels.map((t, i) => `
-    <div class="list-item" style="animation-delay:${i * 0.05}s">
-      <div class="list-item-main">
-        <div>
-          <div class="list-item-title">${t.city}</div>
-          <div class="list-item-sub">${t.note || ''} · ${t.date || '日期未填'}</div>
+  // 地图渲染 - ECharts
+  renderEChartsMap();
+
+  list.innerHTML = state.travels.map((t, i) => {
+    const isOpen = expandedTravelIdx === i;
+    const isEditing = editingNoteIdx === i;
+    const hasJournal = t.journal && t.journal.trim();
+
+    return `
+      <div class="travel-card ${isOpen ? 'open' : ''}" style="animation-delay:${i * 0.05}s">
+        <div class="travel-card-header" onclick="toggleTravelCard(${i})">
+          <div>
+            <div class="travel-card-title">${t.city}</div>
+            <div class="travel-card-date">${t.date || '日期未填'}${t.note ? ' · ' + t.note : ''}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px" onclick="event.stopPropagation()">
+            <button class="delete-btn" onclick="deleteTravel(${i})" title="删除">×</button>
+            <div class="travel-card-toggle">▾</div>
+          </div>
+        </div>
+        <div class="travel-card-body">
+          <div class="travel-card-inner">
+            <!-- 手记 -->
+            <div class="travel-note-section">
+              <div class="travel-note-label">旅行手记</div>
+              ${isEditing ? `
+                <textarea class="travel-note-editor" id="travel-note-editor-${i}" placeholder="写下这次旅行的心情、攻略、回忆...">${t.journal || ''}</textarea>
+                <div style="display:flex; gap:8px; margin-top:8px; justify-content:flex-end">
+                  <button class="btn btn-ghost btn-sm" onclick="editingNoteIdx=-1; renderTravel();">取消</button>
+                  <button class="btn btn-primary btn-sm" onclick="saveTravelNote(${i})">保存</button>
+                </div>
+              ` : hasJournal ? `
+                <div class="travel-note-content" onclick="editTravelNote(${i})">${t.journal}</div>
+              ` : `
+                <div class="travel-note-empty" onclick="editTravelNote(${i})">✏️ 写点什么...</div>
+              `}
+            </div>
+
+            <!-- 照片 -->
+            <div class="travel-note-section">
+              <div class="travel-note-label">照片 ${t.photos && t.photos.length ? `(${t.photos.length})` : ''}</div>
+              <div class="travel-photos-grid">
+                ${t.photos ? t.photos.map((p, pi) => `
+                  <div class="travel-photo" onclick="openLightbox('${p}')">
+                    <img src="${p}" alt="旅行照片">
+                  </div>
+                `).join('') : ''}
+                <div class="travel-photo-add" onclick="uploadTravelPhoto(${i})">+</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
-
-  // Pseudo-map pins with spring animation
-  map.innerHTML = state.travels.map((t, i) => {
-    const x = 15 + (i * 23) % 70;
-    const y = 20 + (i * 31) % 60;
-    return `<div class="map-pin" style="left:${x}%; top:${y}%; animation-delay:${i * 0.1}s" data-label="${t.city}"></div>`;
+    `;
   }).join('');
 }
 
